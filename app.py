@@ -5,10 +5,10 @@ import requests
 # Import necessary modules for decryption
 import base64
 import json
-import os
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad # Required for unpadding decrypted data
 from collections import OrderedDict # To maintain order of keys
+import os # Import the os module to access environment variables
 
 # Create an instance of the Flask application
 # The __name__ argument helps Flask locate resources like templates and static files
@@ -16,7 +16,17 @@ app = Flask(__name__)
 
 # Define the application key for decryption
 # This key is crucial for decrypting the Laravel-encrypted strings
+# Retrieve the APP_KEY_STR from environment variables
 APP_KEY_STR = os.environ.get("APP_KEY_STR")
+
+# It's good practice to check if the environment variable is set
+if not APP_KEY_STR:
+    # In a production environment, you might want to raise an error or log a critical message
+    # For local development, you could set a default or provide a warning
+    print("WARNING: APP_KEY_STR environment variable is not set. Decryption may fail.")
+    # You might want to halt the app or use a placeholder for local testing if needed
+    # APP_KEY_STR = "YOUR_FALLBACK_KEY_FOR_LOCAL_DEV" # Uncomment for local fallback
+
 
 def decrypt_laravel_string_unsafe(encrypted_data_str, app_key_str):
     """
@@ -30,6 +40,10 @@ def decrypt_laravel_string_unsafe(encrypted_data_str, app_key_str):
     Returns:
         The decrypted plaintext string, or an error message.
     """
+    # Ensure app_key_str is not None or empty before proceeding
+    if not app_key_str:
+        return "Decryption key (APP_KEY_STR) is missing."
+
     # --- 1. Decode the initial JSON payload ---
     try:
         # Add padding if necessary for the outer Base64 string
@@ -144,6 +158,10 @@ def get_movie_details(movie_id):
         json: The JSON response from the external movie API with decrypted URLs,
               or an error message.
     """
+    # Check if APP_KEY_STR is available before attempting decryption
+    if not APP_KEY_STR:
+        return jsonify({"error": "Server configuration error: Decryption key is missing."}), 500
+
     # Construct the URL for the external movie API
     external_api_url = f"https://api.msubmovie.com/api/v1/mobile/get/single/movie/{movie_id}"
 
