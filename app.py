@@ -117,7 +117,7 @@ def home():
     Handles requests to the root URL.
     Returns a simple welcome message.
     """
-    return "<h1>Welcome to a Simple Flask API!</h1><p>Use /greet/&lt;name&gt;, /data, /movies/&lt;id&gt;, or /search</p>"
+    return "<h1>Welcome to Msub Reverse API!</h1>"
 
 # Define an endpoint that takes a path parameter
 # <name> is a variable part of the URL, which will be passed as an argument to the function
